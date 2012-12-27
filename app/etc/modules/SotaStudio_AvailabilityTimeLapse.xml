@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config>
+	<modules>
+		<SotaStudio_AvailabilityTimeLapse>
+			<active>true</active>
+			<codePool>community</codePool>
+			<depends>
+				<Mage_Catalog />
+				<Mage_CatalogInventory />
+				<SotaStudio_HelperCollection />
+			</depends>
+		</SotaStudio_AvailabilityTimeLapse>
+	</modules>
+</config>

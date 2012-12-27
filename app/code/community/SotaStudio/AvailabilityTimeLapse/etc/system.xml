@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<config>
+	<sections>
+		<cataloginventory>
+			<groups>
+				<time_lapse translate="label">
+					<label>Availability Time Lapse</label>
+					<frontend_type>text</frontend_type>
+					<sort_order>100</sort_order>
+					<show_in_default>1</show_in_default>
+					<show_in_website>1</show_in_website>
+					<show_in_store>1</show_in_store>
+					<fields>
+						<enable translate="label">
+							<label>Use Availability Time Lapse?</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+							<sort_order>10</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>1</show_in_store>
+						</enable>
+						<date_mode translate="label comment">
+							<label>Which date format to pick?</label>
+							<frontend_type>select</frontend_type>
+							<source_model>
+								SotaStudio_AvailabilityTimeLapse_Model_System_Config_CatalogInventory_ListDateModes
+							</source_model>
+							<sort_order>20</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>1</show_in_store>
+						</date_mode>
+						<display_mode translate="label comment">
+							<label>What to display in frontend?</label>
+							<frontend_type>select</frontend_type>
+							<source_model>
+								SotaStudio_AvailabilityTimeLapse_Model_System_Config_CatalogInventory_ListDisplayModes
+							</source_model>
+							<sort_order>30</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>1</show_in_store>
+						</display_mode>
+					</fields>
+				</time_lapse>
+			</groups>
+		</cataloginventory>
+	</sections>
+</config>

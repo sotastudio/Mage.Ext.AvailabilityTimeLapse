@@ -1,0 +1,18 @@
+# OS generated files
+####################
+.DS_Store*
+ehthumbs.db
+Thumbs.db
+
+
+# IDE files
+###########
+.idea/
+
+
+# Dev and temp files
+####################
+
+
+# Other files
+#############

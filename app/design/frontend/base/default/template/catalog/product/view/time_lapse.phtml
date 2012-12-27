@@ -1,0 +1,16 @@
+<?php if ($this->hasTimeLapseConstraint()): ?>
+
+	<?php $_helper = $this->helper('catalog/output'); ?>
+	<?php $_product = $this->getProduct(); ?>
+
+	<?php list($timeLapseBegin, $timeLapseEnd) = array($this->getTimeLapseBegin(), $this->getTimeLapseEnd()); ?>
+
+	<?php if (!$this->isWithinAvailability()): ?>
+
+		<div class="messages">
+			<p class="notice-msg"><?php echo $_helper->__('Our bad...'); ?></p>
+		</div>
+
+	<?php endif; ?>
+
+<?php endif; ?>

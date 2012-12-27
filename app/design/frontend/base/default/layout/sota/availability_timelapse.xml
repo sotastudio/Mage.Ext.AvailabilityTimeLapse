@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<layout version="0.2.0">
+
+	<!--
+	   - Just in case you want to throw it into the product's view
+	   -  Using this method, you can display the information elsewhere you want
+	   - Call it in the correspondig template via $this->getChildHtml('time_lapse')
+	   -  or $this->getBlockHtml('time_lapse') - it grabs you a block where-ever it's defined within your layout
+	<catalog_product_view>
+		<reference name="product.info">
+			<block type="catalog/product_view" name="product.time_lapse" as="time_lapse" template="catalog/product/view/time_lapse.phtml" />
+		</reference>
+	</catalog_product_view>
+	-->
+
+	<!-- Directly injects the output below the default availability output of Magento -->
+	<PRODUCT_TYPE_simple>
+		<reference name="product.info.simple.extra">
+			<block type="sota_atl/view" name="product.time_lapse" as="time_lapse" template="catalog/product/view/time_lapse.phtml" />
+		</reference>
+	</PRODUCT_TYPE_simple>
+
+</layout>

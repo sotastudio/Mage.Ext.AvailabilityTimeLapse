@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<config>
+
+	<modules>
+		<SotaStudio_AvailabilityTimeLapse>
+			<version>1.0.0</version>
+		</SotaStudio_AvailabilityTimeLapse>
+	</modules>
+
+	<frontend>
+		<layout>
+			<updates>
+				<sota_availabilitytimelapse>
+					<file>sota/availability_timelapse.xml</file>
+				</sota_availabilitytimelapse>
+			</updates>
+		</layout>
+	</frontend>
+
+	<global>
+		<blocks>
+			<sota_atl>
+				<class>SotaStudio_AvailabilityTimeLapse_Block</class>
+			</sota_atl>
+		</blocks>
+		<resources>
+			<availabilitytimelapse_setup>
+				<setup>
+					<module>SotaStudio_AvailabilityTimeLapse</module>
+					<class>Mage_Eav_Model_Entity_Setup</class>
+				</setup>
+				<connection>
+					<use>core_setup</use>
+				</connection>
+			</availabilitytimelapse_setup>
+
+			<availabilitytimelapse_write>
+				<connection>
+					<use>core_write</use>
+				</connection>
+			</availabilitytimelapse_write>
+
+			<availabilitytimelapse_read>
+				<connection>
+					<use>core_read</use>
+				</connection>
+			</availabilitytimelapse_read>
+		</resources>
+	</global>
+
+</config>
