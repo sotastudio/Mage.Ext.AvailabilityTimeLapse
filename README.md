@@ -2,6 +2,8 @@
 
 ## What does it do?
 
+Small workaround for a Trusted Shops issue concerning products with high delivery times and a fixed availability time lapse.
+
 The module helps guys and shops out there dealing with seasonal stuff like plants and seeds in order to come up with Truseted Shops' specifications of the shop certification.
 
 Products, depending on seasonal availability, may have problems regarding the Trusted Shops customer protection.

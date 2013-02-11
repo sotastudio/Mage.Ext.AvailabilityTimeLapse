@@ -31,21 +31,55 @@
  */
 class SotaStudio_AvailabilityTimeLapse_Block_View extends Mage_Catalog_Block_Product_Abstract
 {
+	// Field definitions
+	const attrTimeLapseBegin	= 'time_lapse_begin';
+	const attrTimeLapseEnd		= 'time_lapse_end';
 	// System Config Paths for this module
-	const confPath_Enable 		= 'cataloginventory/time_lapse/enable';
-	const confPath_DateMode 	= 'cataloginventory/time_lapse/date_mode';
-	const confPath_DisplayMode 	= 'cataloginventory/time_lapse/display_mode';
+	const confPath_Enable 			= 'cataloginventory/time_lapse/enable';
+	const confPath_DisplayMode 		= 'cataloginventory/time_lapse/display_mode';
+	const confPath_BuyerProtection 	= 'cataloginventory/time_lapse/buyer_protection';
+	const format_BuyerProtection	= 'day';
+	// Date format constants
+	const dateFormat_Raw	= 'raw';
+	const dateFormat_Short	= 'short';
+	const dateFormat_Medium	= 'medium';
 
+
+	protected $isApplicable		= null;
+	protected $currentDate		= null;
+	protected $timeLapseBegin	= null;
+	protected $timeLapseEnd		= null;
+
+
+	public function __construct()
+	{
+		setlocale(LC_ALL, Mage::getModel('core/locale')->getLocale());
+
+		if ($this->hasTimeLapseConstraint()) {
+			$this->isApplicable = true;
+			$this->initAvailabilityTimeLapse();
+		} else {
+			$this->isApplicable = false;
+		}
+	}
+
+
+	public function isApplicable()
+	{
+		return ($this->isApplicable != null) ? $this->isApplicable : false;
+	}
 
 	/**
-	 * Small helper to get Store Config Flags.
+	 * Checks whether this products has Time-lapse data at all.
 	 *
-	 * @param $flag
+	 * Most important function, because it checks whether this module should be called or not.
+	 * Ensures the module is set to active in the backend and current product has Time-lapse valid definitions.
+	 *
 	 * @return bool
 	 */
-	protected function getStoreConfigFlag($flag)
+	public function hasTimeLapseConstraint()
 	{
-		return Mage::getStoreConfig($flag);
+		return ( $this->isEnabled() && $this->hasValidDates() ) ? true : false;
 	}
 
 	/**
@@ -56,22 +90,7 @@ class SotaStudio_AvailabilityTimeLapse_Block_View extends Mage_Catalog_Block_Pro
 	 */
 	protected function isEnabled()
 	{
-		return ($this->getStoreConfigFlag(self::confPath_Enable)) ? true : false;
-	}
-
-	/**
-	 * Return the backend setting of the date mode for this module.
-	 * This is being set up via backend (System -> Config).
-	 *
-	 * Return value 'day' means "to the day": the day is important to any calculations.
-	 * Return value 'month' means "to the month": the day is irrelevant to calculations.
-	 *  Begin at the fist day of the start month; end at the last day of the end month.
-	 *
-	 * @return string day|month
-	 */
-	protected function getDateMode()
-	{
-		return $this->getStoreConfigFlag(self::confPath_DateMode);
+		return ($this->getStoreConfig(self::confPath_Enable)) ? true : false;
 	}
 
 	/**
@@ -81,110 +100,152 @@ class SotaStudio_AvailabilityTimeLapse_Block_View extends Mage_Catalog_Block_Pro
 	 */
 	protected function hasValidDates()
 	{
-		return ( $this->isValidDate($this->getProduct()->getTimeLapseBegin())
-			     && $this->isValidDate($this->getProduct()->getTimeLapseEnd()) )
-			? true
-			: false;
-	}
-
-	/**
-	 * Returns an array from the given date.
-	 * The format reads as follows:
-	 *  array('y' => x, 'm' => y, 'd' => z)
-	 *
-	 * @param string  $date  The given date as string.
-	 * @return array  The generated Array from date.
-	 */
-	protected function getArrayFromDate($date)
-	{
-		$date = strtotime($date);
-		$dateArray = array(
-			'y' => date('y', $date),
-			'm' => date('m', $date),
-			'd' => date('d', $date),
+		list($tlb, $tle) = array(
+			$this->getProduct()->getAttributeText(self::attrTimeLapseBegin),
+			$this->getProduct()->getAttributeText(self::attrTimeLapseEnd)
 		);
-		return $dateArray;
-	}
-
-	/**
-	 * Evaluated a date
-	 *
-	 * @param $date
-	 * @return bool
-	 * @todo Maybe throw it into the HelperCollection
-	 */
-	protected function isValidDate($date)
-	{
-		$date = $this->getArrayFromDate($date);
-		return ( checkdate($date['m'], $date['d'], $date['y'] && (int)$date['y'] > 70) ) ? true : false;
-	}
-
-	/**
-	 * Adds teh specified amount of months to the given month of the date.
-	 *
-	 * @param mixed  $date  Months of the Date.
-	 * @param integer  $amount  Amount of Months.
-	 */
-	protected function addMonthsToDate(&$date, $amount)
-	{
-		if (strlen($date) === 4) {
-			list($m, $d) = array(substr($date, 0, 2), substr($date, 2, 2));
-			$date = strval($m+$amount) . $d;
-		} else if (strlen($date) === 2) {
-			$date = $date + $amount;
-		}
+		return ( !empty($tlb) && !empty($tle) ) ? true : false;
 	}
 
 	/**
 	 *
 	 *
+	 * @param bool  $extend  Flag which extends the start date by the buyer protection if set to true.
 	 * @return bool
 	 */
-	public function isWithinAvailability()
+	protected function isWithinAvailability($extend = false)
 	{
-		$dateMode_ToTheDay = ($this->getDateMode() == 'day') ? true : false;
+		$dateMode_ToTheDay = true;
+		$initialDateFormat = self::dateFormat_Medium;
 
 		list($currentDate, $timeLapseBegin, $timeLapseEnd) = array(
-			Mage::helper('core')->formatDate(),
-			$this->getProduct()->getTimeLapseBegin(),
-			$this->getProduct()->getTimeLapseEnd()
+			Mage::helper('core')->formatDate($this->currentDate, $initialDateFormat),
+			$this->getTimeLapseBegin($initialDateFormat),
+			$this->getTimeLapseEnd($initialDateFormat)
 		);
 
-		$arrDates = array(
-			'current' 	=> $this->getArrayFromDate($currentDate),
-			'begin'		=> $this->getArrayFromDate($timeLapseBegin),
-			'end'		=> $this->getArrayFromDate($timeLapseEnd)
-		);
-
-		if ( $arrDates['begin']['m'] == $arrDates['end']['m'] && $dateMode_ToTheDay == false
-			|| $dateMode_ToTheDay == true ) {
-			list($arrDates['current']['m'], $arrDates['begin']['m'], $arrDates['end']['m']) = array(
-				(string)$arrDates['current']['m'] . $arrDates['current']['d'],
-				(string)$arrDates['begin']['m'] . $arrDates['begin']['d'],
-				(string)$arrDates['end']['m'] . $arrDates['end']['d']
+		if ($extend) {
+			$bp = $this->getBuyerProtection();
+			$timeLapseBegin = strtotime('-' . $bp, strtotime($timeLapseBegin));
+			$timeLapseBegin = Mage::helper('core')->formatDate(
+				date('Y-m-d', $timeLapseBegin),
+				$initialDateFormat
 			);
 		}
 
-		// If end date's lower then start date, it seems to be within the next year.
-		// Additionally, if the CURRENT date's lower then the end date, we need to populate both by 12 months.
-		if ( (int)$arrDates['end']['m'] < (int)$arrDates['begin']['m']
-			 && (int)$arrDates['current']['m'] < (int)$arrDates['end']['m'] ) {
-			$this->addMonthsToDate($arrDates['current']['m'], 12);
-			$this->addMonthsToDate($arrDates['end']['m'], 12);
+		/*
+		echo '<pre>';
+		var_dump($currentDate, $timeLapseBegin, $timeLapseEnd);
+		echo '</pre>';
+		*/
 
-		// If end date's lower then start date, it seems to be within the next year.
-		// Therefore we need to add 12 months to the end date.
-		} else if ( intval($arrDates['end']['m']) < intval($arrDates['begin']['m']) ) {
-			$this->addMonthsToDate($arrDates['end']['m'], 12);
+		list($currentDate, $timeLapseBegin, $timeLapseEnd) = array(
+			Mage::helper('helper_collection/date')->getArrayFromDate($currentDate),
+			Mage::helper('helper_collection/date')->getArrayFromDate($timeLapseBegin),
+			Mage::helper('helper_collection/date')->getArrayFromDate($timeLapseEnd)
+		);
 
-		}
+		$arrDates = array(
+			'current' 	=> $currentDate['y'] . $currentDate['m'] . $currentDate['d'],
+			'begin'		=> $timeLapseBegin['y'] . $timeLapseBegin['m'] . $timeLapseBegin['d'],
+			'end'		=> $timeLapseEnd['y'] . $timeLapseEnd['m'] . $timeLapseEnd['d']
+		);
 
-		$status = ( $arrDates['current']['m'] >= $arrDates['begin']['m']
-				    && ($arrDates['current']['m'] <= $arrDates['end']['m'] ) )
+		/*
+		echo '<pre>';
+		var_dump($arrDates['current'], $arrDates['begin'], $arrDates['end']);
+		echo '</pre>';
+		*/
+
+		$status = ( $arrDates['current'] >= $arrDates['begin']
+			&& ($arrDates['current'] <= $arrDates['end'] ) )
 			? true
 			: false;
 
 		return $status;
+	}
+
+	protected function initAvailabilityTimeLapse()
+	{
+		// Time Lapse Raw Data - had to give it a shortcut.
+		$tlrd = array(
+			'begin' => explode(' - ', $this->getProduct()->getAttributeText(self::attrTimeLapseBegin)),
+			'end'	=> explode(' - ', $this->getProduct()->getAttributeText(self::attrTimeLapseEnd))
+		);
+
+		$this->currentDate 		= date('Y-m-d');
+		$this->timeLapseBegin 	= date('Y-m-d', strtotime(date('Y') . '-' . $tlrd['begin'][0]));
+		$this->timeLapseEnd 	= date('Y-m-t', strtotime(date('Y') . '-' . $tlrd['end'][0]));
+
+		// Will apply if end date's lower than start date
+		// In this case, end date is within the next year
+		if ($tlrd['begin'][0] > $tlrd['end'][0]) {
+			$this->timeLapseBegin = Mage::helper('helper_collection/date')->calcDate($this->timeLapseBegin, '-1 year');
+		}
+	}
+
+	/**
+	 * Small helper to get Store Config Flags.
+	 *
+	 * @param $flag
+	 * @return bool
+	 */
+	protected function getStoreConfig($flag)
+	{
+		return Mage::getStoreConfig($flag);
+	}
+
+	protected function getBuyerProtection()
+	{
+		return $this->getStoreConfig(self::confPath_BuyerProtection) . ' ' . self::format_BuyerProtection;
+	}
+
+	/**
+	 * Returns the defined display mode for notifications and hints.
+	 *
+	 * @return bool
+	 * @deprecated
+	 */
+	public function getDisplayMode()
+	{
+		return $this->getStoreConfig(self::confPath_DisplayMode);
+	}
+
+	/**
+	 * Returns formatted begin date of Time-lapse.
+	 *
+	 * @param string  $format  short|medium|long|full
+	 * @return string  Formatted date - depends on chosen timezone.
+	 */
+	public function getTimeLapseBegin($format = self::dateFormat_Short)
+	{
+		return ($format === self::dateFormat_Raw)
+			? $this->timeLapseBegin
+			: Mage::helper('core')->formatDate(
+				$this->timeLapseBegin,
+				$format
+			);
+	}
+
+	/**
+	 * Returns formatted end date of Time-lapse.
+	 *
+	 * @param string  $format  short|medium|long|full
+	 * @return string  Formatted date - depends on chosen timezone.
+	 */
+	public function getTimeLapseEnd($format = self::dateFormat_Short)
+	{
+		return ($format === self::dateFormat_Raw)
+			? $this->timeLapseEnd
+			: Mage::helper('core')->formatDate(
+				$this->timeLapseEnd,
+				$format
+			);
+	}
+
+	public function getMonthNameFromDate($date)
+	{
+		return strftime('%B', strtotime($date));
 	}
 
 	/**
@@ -199,39 +260,6 @@ class SotaStudio_AvailabilityTimeLapse_Block_View extends Mage_Catalog_Block_Pro
 			Mage::register('product', $product);
 		}
 		return Mage::registry('product');
-	}
-
-
-	/**
-	 * Checks whether this products has Time-lapse data at all.
-	 *
-	 * @return bool
-	 */
-	public function hasTimeLapseConstraint()
-	{
-		return ( $this->isEnabled() && $this->hasValidDates() ) ? true : false;
-	}
-
-	/**
-	 * Returns formatted begin date of Time-lapse.
-	 *
-	 * @param string  $format  short|medium|long|full
-	 * @return string  Formatted date - depends on chosen timezone.
-	 */
-	public function getTimeLapseBegin($format = 'short')
-	{
-		return Mage::helper('core')->formatDate( $this->getProduct()->getTimeLapseBegin(), $format );
-	}
-
-	/**
-	 * Returns formatted end date of Time-lapse.
-	 *
-	 * @param string  $format  short|medium|long|full
-	 * @return string  Formatted date - depends on chosen timezone.
-	 */
-	public function getTimeLapseEnd($format = 'short')
-	{
-		return Mage::helper('core')->formatDate( $this->getProduct()->getTimeLapseEnd(), $format );
 	}
 
 }

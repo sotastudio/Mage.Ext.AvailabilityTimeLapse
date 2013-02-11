@@ -18,8 +18,8 @@
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
  *
- * @category   SotaStudio
- * @package    SotaStudio_AvailabilityTimeLapse
+ * @category    SotaStudio
+ * @package     SotaStudio_AvailabilityTimeLapse
  * @copyright   Copyright (c) 2012 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
@@ -30,7 +30,7 @@
  *
  * @author     Andy Hausmann <andy@sota-studio.de>
  */
-class SotaStudio_AvailabilityTimeLapse_Model_System_Config_CatalogInventory_ListDisplayModes
+class SotaStudio_AvailabilityTimeLapse_Model_System_Config_CatalogInventory_ListBuyerProtectionOptions
 {
 	/**
 	 * Retrieve option values array
@@ -41,13 +41,29 @@ class SotaStudio_AvailabilityTimeLapse_Model_System_Config_CatalogInventory_List
 	{
 		$options = array(
 			0 => array(
-				'label' => 'Flash Notifications',
-				'value' => 'flash'
+				'label' => '30',
+				'value' => '30'
 			),
 			1 => array(
-				'label' => 'Inline Notifications',
-				'value' => 'inline'
-			)
+				'label' => '60',
+				'value' => '60'
+			),
+			2 => array(
+				'label' => '90',
+				'value' => '90'
+			),
+			3 => array(
+				'label' => '120',
+				'value' => '120'
+			),
+			4 => array(
+				'label' => '150',
+				'value' => '150'
+			),
+			5 => array(
+				'label' => '0',
+				'value' => '0'
+			),
 		);
 		return $options;
 	}

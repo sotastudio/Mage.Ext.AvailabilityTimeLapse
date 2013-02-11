@@ -20,28 +20,28 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</enable>
-						<date_mode translate="label comment">
-							<label>Which date format to pick?</label>
-							<frontend_type>select</frontend_type>
-							<source_model>
-								SotaStudio_AvailabilityTimeLapse_Model_System_Config_CatalogInventory_ListDateModes
-							</source_model>
-							<sort_order>20</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</date_mode>
-						<display_mode translate="label comment">
+						<display_mode translate="label">
 							<label>What to display in frontend?</label>
 							<frontend_type>select</frontend_type>
 							<source_model>
 								SotaStudio_AvailabilityTimeLapse_Model_System_Config_CatalogInventory_ListDisplayModes
 							</source_model>
-							<sort_order>30</sort_order>
+							<sort_order>20</sort_order>
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</display_mode>
+						<buyer_protection translate="label">
+							<label>Trusted Shops Buyer Protection lasts how many days?</label>
+							<frontend_type>select</frontend_type>
+							<source_model>
+								SotaStudio_AvailabilityTimeLapse_Model_System_Config_CatalogInventory_ListBuyerProtectionOptions
+							</source_model>
+							<sort_order>30</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>1</show_in_store>
+						</buyer_protection>
 					</fields>
 				</time_lapse>
 			</groups>
