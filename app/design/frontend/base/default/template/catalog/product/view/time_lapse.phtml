@@ -9,14 +9,14 @@
 
 			<?php $message = 'Pre-order only - restricted Trusted Shops Buyer Protection. Available from %s to %s.'; ?>
 			<div class="messages">
-				<p class="notice-msg"><?php echo $_helper->__($message, $this->getMonthName($this->getTimeLapseBegin()), $this->getMonthName($this->getTimeLapseEnd())); ?></p>
+				<p class="notice-msg"><?php echo $_helper->__($message, $this->getMonthNameFromDate($this->getTimeLapseBegin()), $this->getMonthNameFromDate($this->getTimeLapseEnd())); ?></p>
 			</div>
 
 		<?php else : ?>
 
 			<?php $message = 'Pre-order only - Trusted Shops Buyer Protection not available. Available from %s to %s.'; ?>
 			<div class="messages">
-				<p class="error-msg"><?php echo $_helper->__($message, $this->getMonthName($this->getTimeLapseBegin()), $this->getMonthName($this->getTimeLapseEnd())); ?></p>
+				<p class="error-msg"><?php echo $_helper->__($message, $this->getMonthNameFromDate($this->getTimeLapseBegin()), $this->getMonthNameFromDate($this->getTimeLapseEnd())); ?></p>
 			</div>
 
 		<?php endif; ?>
