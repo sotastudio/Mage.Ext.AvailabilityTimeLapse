@@ -53,10 +53,9 @@ class SotaStudio_AvailabilityTimeLapse_Block_View extends Mage_Catalog_Block_Pro
 
 	public function __construct()
 	{
-		setlocale(LC_ALL, Mage::getModel('core/locale')->getLocale());
-
 		if ($this->hasTimeLapseConstraint()) {
 			$this->isApplicable = true;
+			setlocale(LC_TIME, Mage::getModel('core/locale')->getLocale());
 			$this->initAvailabilityTimeLapse();
 		} else {
 			$this->isApplicable = false;
