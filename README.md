@@ -19,3 +19,7 @@ The module already injects a template file where you can achieve most stuff. But
 	<?php if ($atl_block->isApplicable() && !$atl_block->isWithinAvailability()): ?>
 		<p>Crazy stuff hapening here…</p>
 	<?php endif; ?>
+
+## Known problems
+
+Just one: please adjust your attribute set name in /app/code/community/SotaStudio/AvailabilityTimeLapse/sql/availabilitytimelapse_setup/mysql4-install-1.0.0.php on line 27. It defaults to "Default", but maybe it is called "Standard" or something else within your project.
